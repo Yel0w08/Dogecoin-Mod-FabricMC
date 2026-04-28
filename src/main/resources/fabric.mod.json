@@ -3,13 +3,13 @@
 	"id": "dogecoin",
 	"version": "${version}",
 	"name": "Dogecoin",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"description": "To the moon",
 	"authors": [
-		"Me!"
+		"Yel0w"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/Yel0w08/Dogecoin-Mod-FabricMC/wiki",
+		"sources": "https://github.com/Yel0w08/Dogecoin-Mod-FabricMC"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/dogecoin/icon.png",
