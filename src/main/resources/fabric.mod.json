@@ -2,10 +2,10 @@
 	"schemaVersion": 1,
 	"id": "dogecoin",
 	"version": "${version}",
-	"name": "Dogecoin",
-	"description": "This is an example description! Tell everyone what your mod is about!",
+	"name": "Dogecoin mod",
+	"description": "WoW surch description!",
 	"authors": [
-		"Me!"
+		"Yel0w!"
 	],
 	"contact": {
 		"homepage": "https://fabricmc.net/",
