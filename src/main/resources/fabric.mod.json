@@ -8,18 +8,22 @@
 		"Yel0w!"
 	],
 	"contact": {
-		"homepage": "https://fabricmc.net/",
-		"sources": "https://github.com/FabricMC/fabric-example-mod"
+		"homepage": "https://github.com/Yel0w08/Dogecoin-Mod-FabricMC/wiki",
+		"sources": "https://github.com/Yel0w08/Dogecoin-Mod-FabricMC"
 	},
-	"license": "CC0-1.0",
+	"license": "MIT",
 	"icon": "assets/dogecoin/icon.png",
 	"environment": "*",
 	"entrypoints": {
+
 		"main": [
 			"com.pikmintea.dogecoin.Dogecoin"
 		],
 		"fabric-datagen": [
 			"com.pikmintea.dogecoin.DogecoinDataGenerator"
+		],
+		"client" : [
+			"com.pikmintea.dogecoin.DogecoinClient"
 		]
 	},
 	"mixins": [
