@@ -1,0 +1,22 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "front": "dogecoin:item/dogecoin-1",
+    "back": "dogecoin:item/dogecoin-2",
+    "particle": "dogecoin:item/dogecoin-1"
+  },
+  "elements": [
+    {
+      "from": [0, 0, 0],
+      "to": [16, 16, 0.01],
+      "faces": {
+        "north": { "texture": "#front" },
+        "south": { "texture": "#back" },
+        "east": { "texture": "#front" },
+        "west": { "texture": "#back" },
+        "up": { "texture": "#front" },
+        "down": { "texture": "#front" }
+      }
+    }
+  ]
+}
