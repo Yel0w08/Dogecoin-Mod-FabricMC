@@ -1,6 +1,6 @@
 {
 	"required": true,
-	"package": "pikmintea.dogecoin.mixin",
+	"package": "com.pikmintea.dogecoin.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [
 		"ExampleMixin"

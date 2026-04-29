@@ -1,4 +1,4 @@
-package pikmintea.dogecoin;
+package com.pikmintea.dogecoin;
 
 import net.fabricmc.api.ModInitializer;
 

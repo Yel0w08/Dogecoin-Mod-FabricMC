@@ -1,4 +1,4 @@
-package pikmintea.dogecoin.mixin;
+package com.pikmintea.dogecoin.mixin;
 
 import net.minecraft.server.MinecraftServer;
 import org.spongepowered.asm.mixin.Mixin;

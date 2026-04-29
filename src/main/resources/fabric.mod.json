@@ -3,23 +3,23 @@
 	"id": "dogecoin",
 	"version": "${version}",
 	"name": "Dogecoin",
-	"description": "To the moon",
+	"description": "This is an example description! Tell everyone what your mod is about!",
 	"authors": [
-		"Yel0w"
+		"Me!"
 	],
 	"contact": {
-		"homepage": "https://github.com/Yel0w08/Dogecoin-Mod-FabricMC/wiki",
-		"sources": "https://github.com/Yel0w08/Dogecoin-Mod-FabricMC"
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
 	},
 	"license": "CC0-1.0",
 	"icon": "assets/dogecoin/icon.png",
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"pikmintea.dogecoin.Dogecoin"
+			"com.pikmintea.dogecoin.Dogecoin"
 		],
 		"fabric-datagen": [
-			"pikmintea.dogecoin.DogecoinDataGenerator"
+			"com.pikmintea.dogecoin.DogecoinDataGenerator"
 		]
 	},
 	"mixins": [
