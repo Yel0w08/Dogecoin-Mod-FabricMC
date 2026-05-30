@@ -3,19 +3,20 @@ package com.pikmintea.dogecoin;
 import com.pikmintea.dogecoin.command.DogecoinCommand;
 import com.pikmintea.dogecoin.config.DogecoinConfig;
 import com.pikmintea.dogecoin.item.ModItems;
-import com.pikmintea.dogecoin.screen.WalletPayload;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
-import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
 import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.entity.passive.WolfEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Hand;
+import net.minecraft.util.Identifier;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,10 +31,16 @@ public class Dogecoin implements ModInitializer {
 		ModItems.registerModItems();
 		DogecoinConfig.load();
 		DogecoinCommand.load();
+		DogecoinCommand.setSyncSender((player, balance, count) -> {
+			PacketByteBuf buf = PacketByteBufs.create();
+			buf.writeLong(balance);
+			buf.writeVarInt(count);
+			ServerPlayNetworking.send(player, WalletPayload.SYNC_ID, buf);
+		});
 		DogecoinCommand.register();
 		ServerLifecycleEvents.SERVER_STOPPING.register(server -> DogecoinCommand.save());
-		registerWolfInteraction();
 		registerNetworking();
+		registerWolfInteraction();
 	}
 
 	private void registerWolfInteraction() {
@@ -56,15 +63,13 @@ public class Dogecoin implements ModInitializer {
 	}
 
 	private void registerNetworking() {
-		PayloadTypeRegistry.playC2S().register(WalletPayload.Action.ID, WalletPayload.Action.CODEC);
-		PayloadTypeRegistry.playS2C().register(WalletPayload.Sync.ID, WalletPayload.Sync.CODEC);
-
-		ServerPlayNetworking.registerGlobalReceiver(WalletPayload.Action.ID, (payload, context) -> {
-			var player = context.player();
-			context.server().execute(() -> {
-				switch (payload.action()) {
-					case 0 -> DogecoinCommand.depositAmount(player, payload.amount());
-					case 1 -> DogecoinCommand.withdrawAmount(player, payload.amount());
+		ServerPlayNetworking.registerGlobalReceiver(WalletPayload.ACTION_ID, (server, player, handler, buf, sender) -> {
+			int action = buf.readByte();
+			int amount = buf.readVarInt();
+			server.execute(() -> {
+				switch (action) {
+					case 0 -> DogecoinCommand.depositAmount(player, amount);
+					case 1 -> DogecoinCommand.withdrawAmount(player, amount);
 					case 2 -> DogecoinCommand.depositAll(player);
 					case 3 -> DogecoinCommand.withdrawAll(player);
 				}

@@ -3,10 +3,8 @@
 	"id": "dogecoin",
 	"version": "${version}",
 	"name": "Dogecoin mod",
-	"description": "WoW surch description!",
-	"authors": [
-		"Yel0w!"
-	],
+	"description": "Adds Dogecoin to Minecraft — feed gold to a wolf, use the ATM wallet!",
+	"authors": ["Yel0w!"],
 	"contact": {
 		"homepage": "https://github.com/Yel0w08/Dogecoin-Mod-FabricMC/wiki",
 		"sources": "https://github.com/Yel0w08/Dogecoin-Mod-FabricMC"
@@ -15,24 +13,14 @@
 	"icon": "assets/dogecoin/icon.png",
 	"environment": "*",
 	"entrypoints": {
-
-		"main": [
-			"com.pikmintea.dogecoin.Dogecoin"
-		],
-		"fabric-datagen": [
-			"com.pikmintea.dogecoin.DogecoinDataGenerator"
-		],
-		"client" : [
-			"com.pikmintea.dogecoin.DogecoinClient"
-		]
+		"main": ["com.pikmintea.dogecoin.Dogecoin"],
+		"fabric-datagen": ["com.pikmintea.dogecoin.DogecoinDataGenerator"],
+		"client": ["com.pikmintea.dogecoin.DogecoinClient"]
 	},
-	"mixins": [
-		"dogecoin.mixins.json"
-	],
 	"depends": {
-		"fabricloader": ">=0.19.2",
-		"minecraft": "~1.21.1",
-		"java": ">=21",
+		"fabricloader": "${loader_dep}",
+		"minecraft": "${minecraft_dep}",
+		"java": "${java_dep}",
 		"fabric-api": "*"
 	}
 }

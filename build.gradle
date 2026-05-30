@@ -3,79 +3,97 @@ plugins {
 	id 'maven-publish'
 }
 
-version = project.mod_version
+def versions = [
+	'1.20.1': [
+		minecraft: '1.20.1',
+		yarn: '1.20.1+build.10',
+		loader: '0.16.9',
+		fabricApi: '0.92.0+1.20.1',
+		java: 17
+	],
+	'1.21.1': [
+		minecraft: '1.21.1',
+		yarn: '1.21.1+build.3',
+		loader: '0.19.2',
+		fabricApi: '0.116.11+1.21.1',
+		java: 21
+	],
+	'1.21.4': [
+		minecraft: '1.21.4',
+		yarn: '1.21.4+build.8',
+		loader: '0.19.2',
+		fabricApi: '0.119.0+1.21.4',
+		java: 21
+	]
+]
+
+def mcVersion = project.findProperty('mcVersion') ?: '1.21.1'
+if (!versions.containsKey(mcVersion))
+	throw new GradleException("Unsupported MC version '$mcVersion'. Supported: ${versions.keySet()}")
+
+def ver = versions[mcVersion]
+
+version = "${project.mod_version}+mc${mcVersion}"
 group = project.maven_group
 
-repositories {
-	// Add repositories to retrieve artifacts from in here.
-	// You should only use this when depending on other mods because
-	// Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-	// See https://docs.gradle.org/current/userguide/declaring_repositories.html
-	// for more information about repositories.
-}
-
-fabricApi {
-	configureDataGeneration {
-		client = true
-	}
-}
+sourceSets.main.java.srcDir file("src/versioned/${mcVersion}/java")
 
 dependencies {
-	// To change the versions see the gradle.properties file
-	minecraft "com.mojang:minecraft:${project.minecraft_version}"
-	mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
-	modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
-
-	// Fabric API. This is technically optional, but you probably want it anyway.
-	modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
-	
+	minecraft "com.mojang:minecraft:${ver.minecraft}"
+	mappings "net.fabricmc:yarn:${ver.yarn}:v2"
+	modImplementation "net.fabricmc:fabric-loader:${ver.loader}"
+	modImplementation "net.fabricmc.fabric-api:fabric-api:${ver.fabricApi}"
 }
 
 processResources {
-	def version = project.version
-	inputs.property "version", version
+	def targetVersion = mod_version
+	inputs.property "version", targetVersion
+	inputs.property "loader_dep", ">=${ver.loader}"
+	inputs.property "minecraft_dep", "~${ver.minecraft}"
+	inputs.property "java_dep", ">=${ver.java}"
 
 	filesMatching("fabric.mod.json") {
-		expand "version": version
+		expand(
+			version: targetVersion,
+			loader_dep: ">=${ver.loader}",
+			minecraft_dep: "~${ver.minecraft}",
+			java_dep: ">=${ver.java}"
+		)
 	}
 }
 
 tasks.withType(JavaCompile).configureEach {
-	it.options.release = 21
+	it.options.release = ver.java
 }
 
 java {
-	// Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-	// if it is present.
-	// If you remove this line, sources will not be generated.
 	withSourcesJar()
-
-	sourceCompatibility = JavaVersion.VERSION_21
-	targetCompatibility = JavaVersion.VERSION_21
+	sourceCompatibility = JavaVersion.toVersion(ver.java)
+	targetCompatibility = JavaVersion.toVersion(ver.java)
 }
 
 jar {
-	def projectName = project.name
-	inputs.property "projectName", projectName
+	archiveBaseName = "dogecoin"
+	from("LICENSE") { rename { "${it}_${archiveBaseName}" } }
+}
 
-	from("LICENSE") {
-		rename { "${it}_$projectName"}
+def versionNames = versions.keySet().toList()
+versionNames.each { vName ->
+	def v = versions[vName]
+	tasks.register("build${vName.replace('.', '_')}", GradleBuild) {
+		tasks = ['build']
+		startParameter.projectProperties = [mcVersion: vName]
+		description = "Build for MC $vName"
 	}
 }
 
-// configure the maven publication
+tasks.register("buildAll") {
+	dependsOn versionNames.collect { "build${it.replace('.', '_')}" }
+	description = "Build for all supported MC versions"
+}
+
 publishing {
 	publications {
-		create("mavenJava", MavenPublication) {
-			from components.java
-		}
-	}
-
-	// See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-	repositories {
-		// Add repositories to publish to here.
-		// Notice: This block does NOT have the same function as the block in the top level.
-		// The repositories here will be used for publishing your artifact, not for
-		// retrieving dependencies.
+		create("mavenJava", MavenPublication) { from components.java }
 	}
 }

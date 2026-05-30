@@ -7,9 +7,7 @@ import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import com.pikmintea.dogecoin.Dogecoin;
 import com.pikmintea.dogecoin.item.ModItems;
-import com.pikmintea.dogecoin.screen.WalletPayload;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
-import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.item.ItemStack;
 import net.minecraft.server.command.ServerCommandSource;
@@ -32,6 +30,14 @@ public class DogecoinCommand {
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
     private static final Type TYPE = new TypeToken<Map<String, Long>>() {}.getType();
     private static Map<UUID, Long> wallets = new HashMap<>();
+
+    @FunctionalInterface
+    public interface SyncSender {
+        void send(ServerPlayerEntity player, long balance, int inventoryCount);
+    }
+    private static SyncSender syncSender;
+
+    public static void setSyncSender(SyncSender sender) { syncSender = sender; }
 
     public static void load() {
         if (!Files.exists(WALLET_PATH)) return;
@@ -135,8 +141,8 @@ public class DogecoinCommand {
     }
 
     public static void sendSync(ServerPlayerEntity player) {
-        ServerPlayNetworking.send(player, new WalletPayload.Sync(
-            getBalance(player), countInInventory(player)));
+        if (syncSender != null)
+            syncSender.send(player, getBalance(player), countInInventory(player));
     }
 
     private static int showBalance(CommandContext<ServerCommandSource> ctx) {
