@@ -8,7 +8,7 @@ import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 
 public class WalletScreen extends Screen {
-    private static final int W = 220, H = 230;
+    private static final int W = 220, H = 240;
     private static final int BG = 0xFF1A1A2E;
     private static final int PANEL = 0xFF16213E;
     private static final int ACCENT = 0xFFE94560;
@@ -71,8 +71,9 @@ public class WalletScreen extends Screen {
             new Btn(bx + 142, by, 50, 18, "All", () -> amountField.setText(String.valueOf(inventoryCount))),
             new Btn(bx, cy + 144, 92, 22, "DEPOSIT", () -> act(0)),
             new Btn(bx + 100, cy + 144, 96, 22, "WITHDRAW", () -> act(1)),
-            new Btn(bx + 54, cy + 176, 88, 22, "CLOSE", this::close),
-            new Btn(bx + 54, cy + 200, 88, 22, "DEPOSIT ALL", () -> act(2)),
+            new Btn(bx, cy + 174, 92, 22, "DEPOSIT ALL", () -> act(2)),
+            new Btn(bx + 100, cy + 174, 96, 22, "WITHDRAW ALL", () -> act(3)),
+            new Btn(bx + 54, cy + 204, 88, 22, "CLOSE", this::close),
         };
     }
 

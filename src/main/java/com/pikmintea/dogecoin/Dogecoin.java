@@ -61,16 +61,15 @@ public class Dogecoin implements ModInitializer {
 
 		ServerPlayNetworking.registerGlobalReceiver(WalletPayload.Action.ID, (payload, context) -> {
 			var player = context.player();
-			switch (payload.action()) {
-				case 0 -> DogecoinCommand.depositAmount(player, payload.amount());
-				case 1 -> DogecoinCommand.withdrawAmount(player, payload.amount());
-				case 2 -> DogecoinCommand.depositAll(player);
-				case 3 -> DogecoinCommand.withdrawAmount(player, 64);
-			}
-			context.server().execute(() ->
-				ServerPlayNetworking.send(player, new WalletPayload.Sync(
-					DogecoinCommand.getBalance(player),
-					DogecoinCommand.countInInventory(player))));
+			context.server().execute(() -> {
+				switch (payload.action()) {
+					case 0 -> DogecoinCommand.depositAmount(player, payload.amount());
+					case 1 -> DogecoinCommand.withdrawAmount(player, payload.amount());
+					case 2 -> DogecoinCommand.depositAll(player);
+					case 3 -> DogecoinCommand.withdrawAll(player);
+				}
+				DogecoinCommand.sendSync(player);
+			});
 		});
 	}
 }

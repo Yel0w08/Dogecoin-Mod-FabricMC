@@ -72,28 +72,35 @@ public class DogecoinCommand {
     }
 
     public static void depositAmount(ServerPlayerEntity player, int amount) {
-        int available = countInInventory(player);
-        if (available < amount) return;
-        removeFromInventory(player, amount);
-        wallets.merge(player.getUuid(), (long) amount, Long::sum);
-        save();
+        int removed = removeFromInventory(player, amount);
+        if (removed == 0) return;
+        wallets.merge(player.getUuid(), (long) removed, Long::sum);
     }
 
     public static void depositAll(ServerPlayerEntity player) {
-        int available = countInInventory(player);
-        if (available == 0) return;
-        depositAmount(player, available);
+        int removed = removeFromInventory(player, Integer.MAX_VALUE);
+        if (removed == 0) return;
+        wallets.merge(player.getUuid(), (long) removed, Long::sum);
     }
 
     public static void withdrawAmount(ServerPlayerEntity player, int amount) {
         long balance = getBalance(player);
-        if (balance < amount) return;
+        if (balance < amount || amount == 0) return;
         ItemStack stack = new ItemStack(ModItems.DOGECOIN, amount);
         if (!player.getInventory().insertStack(stack))
             player.dropItem(stack, false);
         wallets.merge(player.getUuid(), (long) -amount, Long::sum);
         if (wallets.get(player.getUuid()) <= 0) wallets.remove(player.getUuid());
-        save();
+    }
+
+    public static void withdrawAll(ServerPlayerEntity player) {
+        long balance = getBalance(player);
+        if (balance == 0) return;
+        int amount = (int) Math.min(balance, Integer.MAX_VALUE);
+        ItemStack stack = new ItemStack(ModItems.DOGECOIN, amount);
+        if (!player.getInventory().insertStack(stack))
+            player.dropItem(stack, false);
+        wallets.remove(player.getUuid());
     }
 
     public static void register() {
@@ -127,7 +134,7 @@ public class DogecoinCommand {
         );
     }
 
-    private static void sendSync(ServerPlayerEntity player) {
+    public static void sendSync(ServerPlayerEntity player) {
         ServerPlayNetworking.send(player, new WalletPayload.Sync(
             getBalance(player), countInInventory(player)));
     }
@@ -145,14 +152,16 @@ public class DogecoinCommand {
         return 1;
     }
 
-    private static void removeFromInventory(ServerPlayerEntity player, int amount) {
+    private static int removeFromInventory(ServerPlayerEntity player, int amount) {
         var inv = player.getInventory();
-        for (int i = 0; i < inv.size() && amount > 0; i++) {
+        int removed = 0;
+        for (int i = 0; i < inv.size() && removed < amount; i++) {
             ItemStack stack = inv.getStack(i);
             if (stack.getItem() != ModItems.DOGECOIN) continue;
-            int toRemove = Math.min(amount, stack.getCount());
+            int toRemove = Math.min(amount - removed, stack.getCount());
             stack.decrement(toRemove);
-            amount -= toRemove;
+            removed += toRemove;
         }
+        return removed;
     }
 }
